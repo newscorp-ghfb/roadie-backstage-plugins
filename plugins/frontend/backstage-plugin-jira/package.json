@@ -11,12 +11,12 @@
   ],
   "homepage": "https://roadie.io/backstage/plugins/jira/",
   "bugs": {
-    "url": "https://github.com/RoadieHQ/roadie-backstage-plugins/issues",
+    "url": "https://github.com/newscorp-ghfb/roadie-backstage-plugins/issues",
     "email": "support@roadie.io"
   },
   "repository": {
     "type": "git",
-    "url": "github:RoadieHQ/roadie-backstage-plugins",
+    "url": "github:newscorp-ghfb/roadie-backstage-plugins",
     "directory": "plugins/frontend/backstage-plugin-jira"
   },
   "publishConfig": {
