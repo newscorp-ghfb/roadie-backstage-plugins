@@ -36,6 +36,7 @@ export interface Config {
     instances?: {
       /**
        * Name of the Jira instance
+       * @visibility frontend
        */
       name: string;
       /**
