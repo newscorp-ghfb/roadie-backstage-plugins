@@ -14,6 +14,7 @@ import {
   JIRA_LABEL_ANNOTATION,
   JIRA_PROJECT_KEY_ANNOTATION,
   JIRA_TEAM_ANNOTATION,
+  JIRA_ANNOTATION_INSTANCE_NAME,
 } from '../../constants';
 import camelCase from 'lodash/camelCase';
 
@@ -31,6 +32,7 @@ const buildTemplateParserEntityContext = (entity: Entity) => {
     JIRA_PROJECT_KEY_ANNOTATION,
     JIRA_LABEL_ANNOTATION,
     JIRA_TEAM_ANNOTATION,
+    JIRA_ANNOTATION_INSTANCE_NAME,
   ].forEach(annotation => {
     if (entity.metadata.annotations?.[annotation]) {
       context[camelCase(annotation.split('/')[1])] =

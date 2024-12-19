@@ -6,9 +6,11 @@ import { InfoCard } from '@backstage/core-components';
 
 export const EntityJiraActivityStreamCard = () => {
   const { entity } = useEntity();
-  const { projectKey, component, tokenType, label } = useProjectEntity(entity);
+  const { projectKey, component, tokenType, label, instanceName } =
+    useProjectEntity(entity);
   const { statuses: statusNames } = useStatuses(projectKey);
   const { ticketIds } = useProjectInfo(
+    instanceName,
     projectKey,
     component,
     label,

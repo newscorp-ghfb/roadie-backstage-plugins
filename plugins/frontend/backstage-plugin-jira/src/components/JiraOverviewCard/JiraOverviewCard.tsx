@@ -35,7 +35,7 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Button,
+  // Button,
 } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { InfoCard, Progress } from '@backstage/core-components';
@@ -47,7 +47,7 @@ import { ActivityStream } from '../EntityJiraActivityStreamCard/ActivityStream';
 import { Selectors } from './components/Selectors';
 import { useEmptyIssueTypeFilter } from '../../hooks/useEmptyIssueTypeFilter';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
+// import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import { useAnalytics } from '@backstage/core-plugin-api';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -103,7 +103,8 @@ export const JiraOverviewCard = (
   const { entity } = useEntity();
   const classes = useStyles();
   const analytics = useAnalytics();
-  const { projectKey, component, tokenType, label } = useProjectEntity(entity);
+  const { projectKey, component, tokenType, label, instanceName } =
+    useProjectEntity(entity);
   const [statusesNames, setStatusesNames] = useState<Array<string>>([]);
   const {
     project,
@@ -113,7 +114,7 @@ export const JiraOverviewCard = (
     projectLoading,
     projectError,
     fetchProjectInfo,
-  } = useProjectInfo(projectKey, component, label, statusesNames);
+  } = useProjectInfo(instanceName, projectKey, component, label, statusesNames);
   const {
     issueTypes: displayIssues,
     type,
@@ -174,7 +175,7 @@ export const JiraOverviewCard = (
               </Box>
             </Box>
             <Box>
-              <Button
+              {/* <Button
                 variant="outlined"
                 color="primary"
                 size="medium"
@@ -183,7 +184,7 @@ export const JiraOverviewCard = (
                 target="_blank"
               >
                 Open in JIRA
-              </Button>
+              </Button> */}
             </Box>
           </Box>
         )

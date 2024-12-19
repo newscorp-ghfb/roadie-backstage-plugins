@@ -21,6 +21,7 @@ import { handleError } from './utils';
 import { jiraApiRef } from '../api';
 
 export const useProjectInfo = (
+  instanceName: string,
   projectKey: string,
   component: string,
   label: string,
@@ -36,11 +37,12 @@ export const useProjectInfo = (
         component,
         label,
         statusesNames,
+        instanceName,
       );
     } catch (err: any) {
       return handleError(err);
     }
-  }, [api, projectKey, component, label, statusesNames]);
+  }, [api, instanceName, projectKey, component, label, statusesNames]);
 
   const [state, fetchProjectInfo] = useAsyncFn(
     () => getProjectDetails(),

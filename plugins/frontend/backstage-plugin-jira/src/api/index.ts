@@ -47,29 +47,71 @@ type Options = {
   fetchApi: FetchApi;
 };
 
+type JiraInstance = {
+  name: string;
+  proxyPath: string;
+  apiVersion: string;
+  confluenceActivityFilter?: string;
+};
+
 export class JiraAPI {
   private readonly discoveryApi: DiscoveryApi;
-  private readonly proxyPath: string;
-  private readonly apiVersion: string;
-  private readonly confluenceActivityFilter: string | undefined;
+  private readonly instances: JiraInstance[];
+  private readonly mainProxyPath: string;
   private readonly fetchApi: FetchApi;
 
   constructor(options: Options) {
     this.discoveryApi = options.discoveryApi;
-
-    const proxyPath = options.configApi.getOptionalString('jira.proxyPath');
-    this.proxyPath = proxyPath ?? DEFAULT_PROXY_PATH;
-
-    const apiVersion = options.configApi.getOptionalNumber('jira.apiVersion');
-    this.apiVersion = apiVersion
-      ? apiVersion.toString()
-      : DEFAULT_REST_API_VERSION;
-
-    this.confluenceActivityFilter = options.configApi.getOptionalString(
-      'jira.confluenceActivityFilter',
-    );
-
     this.fetchApi = options.fetchApi;
+    this.mainProxyPath =
+      options.configApi.getOptionalString('jira.proxyPath') ??
+      DEFAULT_PROXY_PATH;
+
+    const instances =
+      options.configApi.getOptionalConfigArray('jira.instances') || [];
+
+    if (instances.length > 0) {
+      this.instances = instances.map(instance => ({
+        name: instance.getString('name'),
+        proxyPath:
+          instance.getOptionalString('proxyPath') ?? DEFAULT_PROXY_PATH,
+        apiVersion:
+          instance.getOptionalNumber('apiVersion')?.toString() ??
+          DEFAULT_REST_API_VERSION,
+        confluenceActivityFilter: instance.getOptionalString(
+          'confluenceActivityFilter',
+        ),
+      }));
+    } else {
+      this.instances = [
+        {
+          name: 'default',
+          proxyPath: this.mainProxyPath,
+          apiVersion:
+            options.configApi
+              .getOptionalNumber('jira.apiVersion')
+              ?.toString() ?? DEFAULT_REST_API_VERSION,
+          confluenceActivityFilter: options.configApi.getOptionalString(
+            'jira.confluenceActivityFilter',
+          ),
+        },
+      ];
+    }
+  }
+
+  private getInstance(instanceName?: string): JiraInstance {
+    if (!instanceName) {
+      return this.instances[0];
+    }
+
+    const instance = this.instances.find(i => i.name === instanceName);
+    if (!instance) {
+      throw new Error(
+        `Jira instance "${instanceName}" not found in configuration`,
+      );
+    }
+
+    return instance;
   }
 
   private getDomainFromApiUrl(apiUrl: string): string {
@@ -81,11 +123,20 @@ export class JiraAPI {
     new URL(url).origin +
     new URL(url).pathname.replace(/\/rest\/api\/.*$/g, '');
 
-  private async getUrls() {
+  private async getUrls(instanceName?: string) {
+    const instance = this.getInstance(instanceName);
     const proxyUrl = await this.discoveryApi.getBaseUrl('proxy');
+
+    if (!instance) {
+      return {
+        apiUrl: `${proxyUrl}${this.mainProxyPath}/rest/api/${DEFAULT_REST_API_VERSION}/`,
+        baseUrl: `${proxyUrl}${this.mainProxyPath}`,
+      };
+    }
+
     return {
-      apiUrl: `${proxyUrl}${this.proxyPath}/rest/api/${this.apiVersion}/`,
-      baseUrl: `${proxyUrl}${this.proxyPath}`,
+      apiUrl: `${proxyUrl}${instance.proxyPath}/rest/api/${instance.apiVersion}/`,
+      baseUrl: `${proxyUrl}${instance.proxyPath}`,
     };
   }
 
@@ -182,8 +233,9 @@ export class JiraAPI {
     component: string,
     label: string,
     statusesNames: Array<string>,
+    instanceName?: string,
   ) {
-    const { apiUrl } = await this.getUrls();
+    const { apiUrl } = await this.getUrls(instanceName);
 
     const request = await this.fetchApi.fetch(
       `${apiUrl}project/${projectKey}`,
@@ -256,14 +308,16 @@ export class JiraAPI {
     ticketIds: string[] | undefined,
     label: string | undefined,
     isBearerAuth: boolean,
+    instanceName?: string,
   ) {
-    const { baseUrl } = await this.getUrls();
+    const { baseUrl } = await this.getUrls(instanceName);
+    const instance = this.getInstance(instanceName);
 
     let filterUrl = `streams=key+IS+${projectKey}`;
     if (ticketIds && (componentName || label)) {
       filterUrl += `&streams=issue-key+IS+${ticketIds.join('+')}`;
-      filterUrl += this.confluenceActivityFilter
-        ? `&${this.confluenceActivityFilter}=activity+IS+NOT+*`
+      filterUrl += instance.confluenceActivityFilter
+        ? `&${instance.confluenceActivityFilter}=activity+IS+NOT+*`
         : '';
       // Filter to remove all the changes done in Confluence, otherwise they are also shown as part of the component's activity stream
     }
@@ -284,8 +338,8 @@ export class JiraAPI {
     return activityStream;
   }
 
-  async getStatuses(projectKey: string) {
-    const { apiUrl } = await this.getUrls();
+  async getStatuses(projectKey: string, instanceName?: string) {
+    const { apiUrl } = await this.getUrls(instanceName);
 
     const request = await this.fetchApi.fetch(
       `${apiUrl}project/${projectKey}/statuses`,
@@ -314,8 +368,8 @@ export class JiraAPI {
     ];
   }
 
-  async getUserDetails(userId: string) {
-    const { apiUrl } = await this.getUrls();
+  async getUserDetails(userId: string, instanceName?: string) {
+    const { apiUrl } = await this.getUrls(instanceName);
 
     const request = await this.fetchApi.fetch(
       `${apiUrl}user?username=${userId}`,
@@ -376,9 +430,8 @@ export class JiraAPI {
     };
   }
 
-  async jqlQuery(query: string, maxResults?: number) {
-    const { apiUrl } = await this.getUrls();
-
+  async jqlQuery(query: string, maxResults?: number, instanceName?: string) {
+    const { apiUrl } = await this.getUrls(instanceName);
     const issues = [];
 
     let startAt: number | undefined = 0;

@@ -18,25 +18,45 @@
 export interface Config {
   jira?: {
     /**
-     * The proxy path for Jira.
-     * Should be used if proxy is in use for security etc purposes.
-     * @visibility frontend
+     * @deprecated Use instances instead
      */
     proxyPath?: string;
-
     /**
-     * In case Confluence is also used, when filtering by component
-     * the activities from there would also appear, add this config to
-     * remove all those occurrences from the Activity Stream.
-     * @visibility frontend
+     * @deprecated Use instances instead
+     */
+    apiVersion?: number;
+    /**
+     * @deprecated Use instances instead
      */
     confluenceActivityFilter?: string;
 
     /**
-     * The verison of the Jira API
-     * Should be used if you do not want to use the latest Jira API.
-     * @visibility frontend
+     * Configuration for multiple Jira instances
      */
-    apiVersion?: number;
+    instances?: {
+      /**
+       * Name of the Jira instance
+       */
+      name: string;
+      /**
+       * Path to the proxy endpoint for this Jira instance
+       * @default '/jira/api'
+       */
+      proxyPath?: string;
+      /**
+       * In case Confluence is also used, when filtering by component
+       * the activities from there would also appear, add this config to
+       * remove all those occurrences from the Activity Stream.
+       * @visibility frontend
+       */
+      confluenceActivityFilter?: string;
+
+      /**
+       * The verison of the Jira API
+       * Should be used if you do not want to use the latest Jira API.
+       * @visibility frontend
+       */
+      apiVersion?: number;
+    }[];
   };
 }
