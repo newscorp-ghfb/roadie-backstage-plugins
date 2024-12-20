@@ -1,7 +1,8 @@
 name: Check bump versions
 on:
-  schedule:
-    - cron: '0 6 * * 5'
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 6 * * 5'
 
 jobs:
   create-pull-request:

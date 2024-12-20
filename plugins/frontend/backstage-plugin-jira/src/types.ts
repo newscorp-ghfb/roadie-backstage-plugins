@@ -202,3 +202,10 @@ export type UserSummary = {
   avatarUrl: string;
   url: string;
 };
+
+export type JiraInstanceConfig = {
+  name: string;
+  proxyPath?: string;
+  confluenceActivityFilter?: string;
+  apiVersion?: number;
+};

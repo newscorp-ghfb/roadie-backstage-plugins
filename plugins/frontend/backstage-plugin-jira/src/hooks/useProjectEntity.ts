@@ -20,12 +20,16 @@ import {
   JIRA_COMPONENT_ANNOTATION,
   JIRA_LABEL_ANNOTATION,
   JIRA_PROJECT_KEY_ANNOTATION,
+  JIRA_ANNOTATION_INSTANCE_NAME,
 } from '../constants';
 
 export const useProjectEntity = (entity: Entity) => {
   return {
     projectKey: entity.metadata?.annotations?.[
       JIRA_PROJECT_KEY_ANNOTATION
+    ] as string,
+    instanceName: entity.metadata?.annotations?.[
+      JIRA_ANNOTATION_INSTANCE_NAME
     ] as string,
     component: entity.metadata?.annotations?.[
       JIRA_COMPONENT_ANNOTATION

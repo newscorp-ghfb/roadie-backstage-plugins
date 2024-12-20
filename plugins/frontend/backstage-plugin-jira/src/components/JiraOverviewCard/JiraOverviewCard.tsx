@@ -103,7 +103,8 @@ export const JiraOverviewCard = (
   const { entity } = useEntity();
   const classes = useStyles();
   const analytics = useAnalytics();
-  const { projectKey, component, tokenType, label } = useProjectEntity(entity);
+  const { projectKey, component, tokenType, label, instanceName } =
+    useProjectEntity(entity);
   const [statusesNames, setStatusesNames] = useState<Array<string>>([]);
   const {
     project,
@@ -113,7 +114,7 @@ export const JiraOverviewCard = (
     projectLoading,
     projectError,
     fetchProjectInfo,
-  } = useProjectInfo(projectKey, component, label, statusesNames);
+  } = useProjectInfo(instanceName, projectKey, component, label, statusesNames);
   const {
     issueTypes: displayIssues,
     type,
