@@ -42,6 +42,7 @@ export interface Config {
       /**
        * Path to the proxy endpoint for this Jira instance
        * @default '/jira/api'
+       * @visibility frontend
        */
       proxyPath?: string;
       /**
