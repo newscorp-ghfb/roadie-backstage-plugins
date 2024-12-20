@@ -50,7 +50,7 @@
     "@backstage/plugin-search-common": "^1.2.15",
     "@langchain/core": "^0.2.27",
     "@roadiehq/rag-ai-node": "^0.1.9",
-    "langchain": "^0.1.21",
+    "langchain": "^0.3.7",
     "node-fetch": "^2.6.7",
     "p-limit": "^3.0.2",
     "yn": "^4.0.0"
